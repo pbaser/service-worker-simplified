@@ -1,0 +1,22 @@
+a {
+  text-decoration: none;
+  color: #fff;
+}
+#tabs {
+  background: skyblue;
+  width: 100%;
+  color: #fff;
+}
+
+.tab {
+  padding: 0 15px;
+}
+
+#tabs .active {
+  border-bottom: 2px solid #777;
+}
+
+#content {
+  background: pink;
+  height: 80vh;
+}

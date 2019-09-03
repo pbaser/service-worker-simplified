@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="./main.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Simple example of Custom event and Service worker</h1>
+    <header>
+      <nav id="tabs">
+        <a id="about" class="tab" href="#about">About us</a>
+        <a id="contact" class="tab" href="#contact">Contact us</a>
+      </nav>
+    </header>
+    <section id="content">
+      <h1 class="section-head"></h1>
+      <p class="section-body"></p>
+    </section>
+    <footer>
+      <a style="color: #000" href="test.html" target="_blank">Test</a>
+    </footer>
+    <script>
+      (function() {
+        const data = {
+          about: {
+            title: "This is about title",
+            body: "This section is the body of About us"
+          },
+          contact: {
+            title: "This is contact title",
+            body: "This section is the body of Contact us"
+          }
+        };
+
+        let currentSelectedTab;
+
+        function handleTabChange(e) {
+          const clickedTab = e.target;
+          if (currentSelectedTab && clickedTab.id === currentSelectedTab.id) {
+            return;
+          }
+
+          if (currentSelectedTab) currentSelectedTab.classList.remove("active");
+          clickedTab.classList.add("active");
+
+          currentSelectedTab = clickedTab;
+
+          const customEvent = new CustomEvent("tabClicked");
+
+          clickedTab.dispatchEvent(customEvent);
+        }
+
+        function handleHashChange() {
+          const currentUrl = location.hash.substring(1);
+          const content = data[currentUrl];
+
+          const contentTitle = document.querySelector("#content .section-head");
+          const contentBody = document.querySelector("#content .section-body");
+
+          contentTitle.textContent = content.title;
+          contentBody.textContent = content.body;
+        }
+
+        window.addEventListener("hashchange", handleHashChange);
+        document
+          .querySelector("#tabs")
+          .addEventListener("click", handleTabChange);
+
+        document
+          .querySelector("#about")
+          .addEventListener("tabClicked", event => {
+            event.target.style.color = "green";
+          });
+
+        document
+          .querySelector("#contact")
+          .addEventListener("tabClicked", event => {
+            event.target.style.color = "yellow";
+          });
+      })();
+      /* Web worker example */
+      const worker = new Worker("./dowork1.js");
+      worker.addEventListener("message", event => {
+        console.log("Message listner in main Thread");
+        console.log(event.data);
+      });
+
+      worker.postMessage({
+        cmd: "start",
+        msg: "Trigger to start from Main thread. Hello!"
+      });
+
+      /* Register a service worker */
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./serviceworker.js")
+            .then(res => {
+              console.log("Service worker registered!");
+            })
+            .catch(error => console.error(error));
+        });
+      }
+    </script>
+  </body>
+</html>
